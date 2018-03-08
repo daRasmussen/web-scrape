@@ -1,7 +1,7 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 const options = {
-  uri: `http://localhost/wiki/`,
+  uri: `https://sv.wikipedia.org/wiki/Svenska_v%C3%A4gm%C3%A4rken`,
   transform: function (body) {
     return cheerio.load(body);
   }
@@ -13,7 +13,6 @@ let ids = [];
 rp(options)
   .then(($) => {
     $('li[class=gallerybox]').each(function(i, elem) {
-        // FIXA SÅ ATT åäö försvinner och space byts ut mot _
         let name = $(this).text();
         name = name.toString().replace(/(\r\n|\n|\r)/gm,"");
         name = name.toString().replace(/(\r\t|\t|\r)/gm,"");
@@ -49,6 +48,12 @@ rp(options)
       href = href.replace('/wiki/File:', '');
       let downUrl = `https://upload.wikimedia.org/wikipedia/commons`;
       downUrl = `${downUrl}${id}${href}`;
+      name = name.toLowerCase();
+      name = name.replace(/[ ]/g,'_');
+      name = name.replace(/[å]/g,'a');
+      name = name.replace(/[ä]/g,'a');
+      name = name.replace(/[ö]/g,'o');
+      //console.log(name);
       //console.log(downUrl);
       download(downUrl, `./images/${name}.svg`, function(){
         console.log('download done! of: '+name);
