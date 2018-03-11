@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
+const deburr = require('lodash.deburr');
 const options = {
   uri: `https://sv.wikipedia.org/wiki/Svenska_v%C3%A4gm%C3%A4rken`,
   transform: function (body) {
@@ -29,7 +30,7 @@ rp(options)
         let last = src.split('thumb')[1];
         let id;
         if(last !== undefined){
-          id = last.split('Sweden_')[0];
+          id = last.split('Sweden_')[0].substring(0,6);
           ids.push(id);
         }
     });
@@ -47,18 +48,23 @@ rp(options)
       href = href.replace('Fil:', 'File:');
       href = href.replace('/wiki/File:', '');
       let downUrl = `https://upload.wikimedia.org/wikipedia/commons`;
-      downUrl = `${downUrl}${id}${href}`;
-      name = name.toLowerCase();
-      name = name.replace(/[ ]/g,'_');
-      name = name.replace(/[å]/g,'a');
-      name = name.replace(/[ä]/g,'a');
-      name = name.replace(/[ö]/g,'o');
-      //console.log(name);
-      //console.log(downUrl);
-      download(downUrl, `./images/${name}.svg`, function(){
-        console.log('download done! of: '+name);
-        console.log(downUrl);
-      });
+
+      // Print
+      //console.log(`downurl: ${downUrl}`);
+      //console.log(`id: ${id}`);
+      //console.log(`href: ${href}`);
+
+      // Removes non free and old historic images and non-name
+      if(href.substring(href.length -5 )[0] !== ')' && href !== 'No_free_image.svg' && name.substring(name.length-1) !== ')' && name !== ''){
+        downUrl = `${downUrl}${id}${href}`;
+        // formatting name
+        name = name.toLowerCase();
+        name = name.replace(/[ ]/g,'_');
+        name = deburr(name);
+        download(downUrl, `./images/${name}.svg`, function(){
+         console.log('download done! of: '+name);
+        });
+      }
     }
   })
   .catch((err) => {

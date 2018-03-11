@@ -19,6 +19,7 @@
   "homepage": "https://github.com/daRasmussen/web-scrape#readme",
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
+    "lodash.deburr": "^4.1.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "wtf_wikipedia": "^2.6.1"
